@@ -1,22 +1,16 @@
 #include <algorithm>
+#include <cstddef>
 #include <ctype.h>
 #include <fstream>
 #include <iostream>
 #include <stack>
+#include <string>
+#include <cstring>
 
+#include "../arguments.hh"
 #include "../convertor.hh"
 #include "../display.hh"
 #include "../executor.hh"
-
-
-void args_count_check(int argc)
-{
-    if (argc != 1)
-    {
-        std::cout << "Le main ne prend aucun argument" << '\n';
-        exit(1);
-    }
-}
 
 void home_file_check(std::ifstream &json_file, std::string &home_path)
 {
@@ -73,19 +67,20 @@ void command_launcher(std::map<std::string, Folder> &map,
              && Executor::instance().execute(command_name, skip_execute));
 }
 
-int main(int argc, char **)
+int main(int argc, char **argv)
 {
-    args_count_check(argc);
-
-    std::ifstream json_file;
     std::string home_path = std::string(getenv("HOME")) + "/.cpad";
-
+    std::ifstream json_file;
     home_file_check(json_file, home_path);
-
     auto map = Convertor::instance().read(home_path);
-    std::string command_input;
-    std::string command_name;
-    std::string current_folder = ".";
+    if (argc != 1)
+        parse_arg(argc, argv, map, home_path);
+    else
+    {
+        std::string command_input;
+        std::string command_name;
+        std::string current_folder = ".";
 
-    command_launcher(map, command_input, current_folder, command_name);
+        command_launcher(map, command_input, current_folder, command_name);
+    }
 }
